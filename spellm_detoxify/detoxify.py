@@ -7,28 +7,34 @@ from pathlib import Path
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, PreTrainedModel, PreTrainedTokenizer
 
     
-    
 class Detoxify:
 
-    def __init__(self, model: PreTrainedModel, tokenizer: PreTrainedTokenizer, class_names: list[str], device: torch.device | str = "cpu"):
+    def __init__(
+        self,
+        model: PreTrainedModel,
+        tokenizer: PreTrainedTokenizer,
+        class_names: list[str],
+        device: torch.device | str = "cpu"
+    ) -> None:
         super().__init__()
-        self.model = model
+        self.model = model.to(device)
         self.tokenizer = tokenizer
         self.class_names = class_names
         self.device = device
-        self.model.to(self.device)
 
     @classmethod
-    def from_pretrained(cls, path: Path, device: torch.device | str = "cpu"):
+    def from_pretrained(cls, path: Path | str, device: torch.device | str = "cpu"):
+        if isinstance(path, str):
+            path = Path(path)
         model = AutoModelForSequenceClassification.from_pretrained(path)
         tokenizer = AutoTokenizer.from_pretrained(path)
-        class_names = json.loads(path.read_text())
+        class_names = json.loads((path / "class_names.json").read_text())
         return cls(model, tokenizer, class_names, device=device)
 
     @torch.no_grad()
     def predict(self, text):
         self.model.eval()
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(self.model.device)
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, padding=True).to(self.device)
         out = self.model(**inputs)[0]
         scores = torch.sigmoid(out).cpu().detach().numpy()
         results = {}

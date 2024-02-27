@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="spellm-detoxify",
+    name="spellm_detoxify",
     version="1.0.0",
     author="IDRIS",
     author_email="assist@idris.fr",

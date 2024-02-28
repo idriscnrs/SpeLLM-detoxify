@@ -5,7 +5,7 @@ Same thing as this https://github.com/unitaryai/detoxify, except this time we ca
 ## Usage
 
 ```python
-from spell_detoxify import Detoxify
+from spellm_detoxify import Detoxify
 
 detoxify = Detoxify.from_pretrained(path)
 ```
